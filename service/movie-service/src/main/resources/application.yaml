@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: movie-service
+  flyway:
+    enabled: true
+    locations:
+      - classpath:db/migration
+  jpa:
+    hibernate:
+      ddl-auto: none
+    generate-ddl: off
+    show-sql: false
+    database: postgresql
+  datasource:
+    url: jdbc:postgresql://localhost:5432/movie-service
+    username: root
+    password: 1134
+    driver-class-name: org.postgresql.Driver
+
