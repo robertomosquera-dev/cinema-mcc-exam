@@ -5,6 +5,7 @@ import com.mitocode.application.dto.ReleaseSeatResponse;
 import com.mitocode.application.dto.ReserveSeatResponse;
 import com.mitocode.application.dto.ScreeningAvailabilityResponse;
 import com.mitocode.application.dto.ScreeningResponse;
+import com.mitocode.application.exception.ResourceNotFoundException;
 import com.mitocode.application.mapper.ScreeningDtoMapper;
 import com.mitocode.application.port.in.CreateScreeningUseCase;
 import com.mitocode.application.port.in.GetScreeningUseCase;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,40 +34,50 @@ public class ScreeningService implements CreateScreeningUseCase, GetScreeningsUs
 
     @Override
     @Transactional
-    public Screening createScreening(CreateScreeningRequest request) {
-        // TODO: Comprobar mediante MovieRepositoryPort que la película existe.
-        // TODO: Convertir la solicitud a Screening y validar en el dominio sus invariantes.
-        // TODO: Persistir la función mediante ScreeningRepositoryPort y devolver el modelo guardado.
-        throw new UnsupportedOperationException("Pendiente implementar la creación de funciones");
+    public ScreeningResponse createScreening(CreateScreeningRequest request) {
+        if (!movieRepositoryPort.existsById(request.movieId())) {
+            throw new ResourceNotFoundException("Película no encontrada: " + request.movieId());
+        }
+        Screening screening = screeningDtoMapper.toDomain(request);
+        screening.validateCapacity();
+        screening = screeningRepositoryPort.save(screening);
+        return screeningDtoMapper.toResponse(screening);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ScreeningResponse> getScreenings() {
-        // TODO: Consultar las funciones y obtener el título de cada película para las respuestas.
-        throw new UnsupportedOperationException("Pendiente implementar el listado de funciones");
+        List<Screening> screenings = screeningRepositoryPort.findAll();
+        return screenings.stream()
+                .map(screeningDtoMapper::toResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
     public ScreeningAvailabilityResponse getScreening(UUID screeningId) {
-        // TODO: Buscar la función y su película; devolver título y disponibilidad.
-        throw new UnsupportedOperationException("Pendiente implementar la consulta de funciones");
+        Screening screening = screeningRepositoryPort.findById(screeningId)
+                .orElseThrow(() -> new ResourceNotFoundException("Función no encontrada: " + screeningId));
+        return screeningDtoMapper.toAvailabilityResponse(screening);
     }
 
     @Override
     @Transactional
     public ReserveSeatResponse reserveSeat(UUID screeningId) {
-        // TODO: Buscar la función y reservar un asiento mediante el método de dominio.
-        // TODO: Proteger la actualización concurrente, persistir y devolver la disponibilidad.
-        throw new UnsupportedOperationException("Pendiente implementar la reserva de asientos");
+        Screening screening = screeningRepositoryPort.findByIdForUpdate(screeningId)
+                .orElseThrow(() -> new ResourceNotFoundException("Función no encontrada: " + screeningId));
+        screening.reserveSeat();
+        Screening savedScreening = screeningRepositoryPort.save(screening);
+        return new ReserveSeatResponse(savedScreening.getId(), savedScreening.getAvailableSeats());
     }
 
     @Override
     @Transactional
     public ReleaseSeatResponse releaseSeat(UUID screeningId) {
-        // TODO: Buscar la función y liberar un asiento mediante el método de dominio.
-        // TODO: Persistir y devolver la disponibilidad actualizada.
-        throw new UnsupportedOperationException("Pendiente implementar la liberación de asientos");
+        Screening screening = screeningRepositoryPort.findByIdForUpdate(screeningId)
+                .orElseThrow(() -> new ResourceNotFoundException("Función no encontrada: " + screeningId));
+        screening.releaseSeat();
+        Screening savedScreening = screeningRepositoryPort.save(screening);
+        return new ReleaseSeatResponse(savedScreening.getId(), savedScreening.getAvailableSeats());
     }
 }

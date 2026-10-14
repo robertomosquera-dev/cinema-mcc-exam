@@ -1,9 +1,9 @@
 package com.mitocode.application.port.in;
 
 import com.mitocode.application.dto.CreateScreeningRequest;
-import com.mitocode.domain.model.Screening;
+import com.mitocode.application.dto.ScreeningResponse;
 
 public interface CreateScreeningUseCase {
 
-    Screening createScreening(CreateScreeningRequest request);
+    ScreeningResponse createScreening(CreateScreeningRequest request);
 }

@@ -9,13 +9,12 @@ import org.springframework.context.annotation.Configuration;
 public class OpenApiConfig {
 
     @Bean
-    OpenAPI movieApi()
-    {
+    OpenAPI movieApi() {
         return new OpenAPI()
                 .info(
                         new Info()
-                                .title("Movie API")
-                                .description("Movie API description")
+                                .title("Movie Service API")
+                                .description("Catálogo de películas, funciones y disponibilidad de asientos")
                                 .version("1.0.0")
                 );
     }

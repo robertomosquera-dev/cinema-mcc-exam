@@ -12,6 +12,8 @@ public interface MovieRepositoryPort {
 
     Optional<Movie> findById(UUID movieId);
 
+    boolean existsById(UUID movieId);
+
     List<Movie> findAll();
 
     void deleteById(UUID movieId);

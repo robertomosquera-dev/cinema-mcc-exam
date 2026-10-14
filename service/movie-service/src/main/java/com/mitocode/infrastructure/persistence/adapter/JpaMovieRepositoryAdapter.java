@@ -29,6 +29,11 @@ public class JpaMovieRepositoryAdapter implements MovieRepositoryPort {
     }
 
     @Override
+    public boolean existsById(UUID movieId) {
+        return repository.existsById(movieId);
+    }
+
+    @Override
     public List<Movie> findAll() {
         return repository.findAll().stream().map(mapper::toDomain).toList();
     }

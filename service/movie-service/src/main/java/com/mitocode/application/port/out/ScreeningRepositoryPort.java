@@ -12,5 +12,9 @@ public interface ScreeningRepositoryPort {
 
     Optional<Screening> findById(UUID screeningId);
 
+    Optional<Screening> findByIdForUpdate(UUID screeningId);
+
+    boolean existsByMovieId(UUID movieId);
+
     List<Screening> findAll();
 }
