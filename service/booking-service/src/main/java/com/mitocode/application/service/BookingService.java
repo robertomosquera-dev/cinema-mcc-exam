@@ -2,11 +2,14 @@ package com.mitocode.application.service;
 
 import com.mitocode.application.dto.BookingResponse;
 import com.mitocode.application.dto.CreateBookingRequest;
+import com.mitocode.application.error.BookingNotFoundException;
 import com.mitocode.application.port.in.CancelBookingUseCase;
 import com.mitocode.application.port.in.CreateBookingUseCase;
 import com.mitocode.application.port.in.GetBookingByIdUseCase;
 import com.mitocode.application.port.in.GetBookingsUseCase;
 import com.mitocode.application.mapper.BookingDtoMapper;
+import com.mitocode.application.port.out.BookingRepositoryPort;
+import com.mitocode.application.port.out.MovieClientPort;
 import com.mitocode.application.saga.IStep;
 import com.mitocode.application.saga.SagaContext;
 import com.mitocode.application.saga.SagaStepsExecutor;
@@ -14,6 +17,7 @@ import com.mitocode.application.saga.step.VerifyScreeningStep;
 import com.mitocode.application.saga.step.CreatePendingBookingStep;
 import com.mitocode.application.saga.step.ReserveSeatStep;
 import com.mitocode.application.saga.step.ConfirmBookingStep;
+import com.mitocode.domain.model.Booking;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +28,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BookingService implements CreateBookingUseCase, GetBookingByIdUseCase,
         GetBookingsUseCase, CancelBookingUseCase {
+    private final BookingRepositoryPort bookingRepository;
+    private final MovieClientPort movieClient;
     private final SagaStepsExecutor saga;
     private final VerifyScreeningStep verifyScreeningStep;
     private final CreatePendingBookingStep createPendingBookingStep;
@@ -41,19 +47,24 @@ public class BookingService implements CreateBookingUseCase, GetBookingByIdUseCa
 
     @Override
     public BookingResponse getBookingById(UUID id) {
-        // TODO: Consultar la reserva local por su identificador.
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        return mapper.toResponse(findBooking(id));
     }
 
     @Override
     public List<BookingResponse> getBookings() {
-        // TODO: Consultar y devolver las reservas locales.
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        return bookingRepository.findAll().stream().map(mapper::toResponse).toList();
     }
 
     @Override
     public BookingResponse cancelBooking(UUID id) {
-        // TODO: Coordinar la cancelación de la reserva cuando se implemente la Saga.
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        var booking = findBooking(id);
+        booking.cancelByCustomer();
+        var cancelled = bookingRepository.save(booking);
+        movieClient.releaseSeat(cancelled.getScreeningId(), cancelled.getId());
+        return mapper.toResponse(cancelled);
+    }
+
+    private Booking findBooking(UUID id) {
+        return bookingRepository.findById(id).orElseThrow(() -> new BookingNotFoundException(id));
     }
 }

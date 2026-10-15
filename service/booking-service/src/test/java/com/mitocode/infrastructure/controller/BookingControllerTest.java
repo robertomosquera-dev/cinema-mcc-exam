@@ -2,11 +2,13 @@ package com.mitocode.infrastructure.controller;
 
 import com.mitocode.application.dto.BookingResponse;
 import com.mitocode.application.error.ScreeningUnavailableException;
+import com.mitocode.application.error.BookingNotFoundException;
 import com.mitocode.application.port.in.CancelBookingUseCase;
 import com.mitocode.application.port.in.CreateBookingUseCase;
 import com.mitocode.application.port.in.GetBookingByIdUseCase;
 import com.mitocode.application.port.in.GetBookingsUseCase;
 import com.mitocode.domain.model.BookingStatus;
+import com.mitocode.domain.model.exception.BookingNotCancellableException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -16,22 +18,26 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class BookingControllerTest {
     private final CreateBookingUseCase create = mock(CreateBookingUseCase.class);
+    private final GetBookingByIdUseCase getById = mock(GetBookingByIdUseCase.class);
+    private final GetBookingsUseCase list = mock(GetBookingsUseCase.class);
+    private final CancelBookingUseCase cancel = mock(CancelBookingUseCase.class);
     private final MockMvc mvc;
 
     BookingControllerTest() {
         var validator = new LocalValidatorFactoryBean();
         validator.afterPropertiesSet();
-        mvc = MockMvcBuilders.standaloneSetup(new BookingController(create,
-                        mock(GetBookingByIdUseCase.class), mock(GetBookingsUseCase.class),
-                        mock(CancelBookingUseCase.class)))
+        mvc = MockMvcBuilders.standaloneSetup(new BookingController(create, getById, list, cancel))
                 .setControllerAdvice(new BookingProblemHandler()).setValidator(validator).build();
     }
 
@@ -66,5 +72,47 @@ class BookingControllerTest {
                                 + UUID.randomUUID() + "\",\"totalAmount\":1}"))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.detail").value("Sin asientos"));
+    }
+
+    @Test
+    void getAndListReturnBookings() throws Exception {
+        UUID id = UUID.randomUUID();
+        var response = response(id, BookingStatus.CONFIRMED);
+        when(getById.getBookingById(id)).thenReturn(response);
+        when(list.getBookings()).thenReturn(List.of(response));
+        mvc.perform(get("/api/v1/bookings/{id}", id))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(id.toString()));
+        mvc.perform(get("/api/v1/bookings"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$[0].status").value("CONFIRMED"));
+    }
+
+    @Test
+    void cancelReturnsBookingAndBusinessErrors() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(cancel.cancelBooking(id)).thenReturn(response(id, BookingStatus.CANCELLED))
+                .thenThrow(new BookingNotCancellableException("La reserva ya está cancelada"));
+        mvc.perform(patch("/api/v1/bookings/{id}/cancel", id))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("CANCELLED"));
+        mvc.perform(patch("/api/v1/bookings/{id}/cancel", id))
+                .andExpect(status().isUnprocessableEntity()).andExpect(jsonPath("$.status").value(422));
+    }
+
+    @Test
+    void missingBookingReturns404() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(getById.getBookingById(id)).thenThrow(new BookingNotFoundException(id));
+        mvc.perform(get("/api/v1/bookings/{id}", id))
+                .andExpect(status().isNotFound()).andExpect(jsonPath("$.status").value(404));
+    }
+
+    @Test
+    void malformedBookingIdReturns400() throws Exception {
+        mvc.perform(get("/api/v1/bookings/no-es-uuid"))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400));
+    }
+
+    private BookingResponse response(UUID id, BookingStatus status) {
+        return new BookingResponse(id, UUID.randomUUID(), "Película", UUID.randomUUID(),
+                status, BigDecimal.ONE, Instant.now(), Instant.now());
     }
 }

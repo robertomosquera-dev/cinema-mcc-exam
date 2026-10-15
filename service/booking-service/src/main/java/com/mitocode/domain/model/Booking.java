@@ -1,5 +1,6 @@
 package com.mitocode.domain.model;
 
+import com.mitocode.domain.model.exception.BookingNotCancellableException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -60,5 +61,15 @@ public class Booking {
             throw new IllegalStateException("No se puede cancelar una reserva sin estado válido");
         }
         status = BookingStatus.CANCELLED;
+    }
+
+    public void cancelByCustomer() {
+        if (status == BookingStatus.CANCELLED) {
+            throw new BookingNotCancellableException("La reserva ya está cancelada");
+        }
+        if (status != BookingStatus.CONFIRMED) {
+            throw new BookingNotCancellableException("Solo se puede cancelar una reserva confirmada");
+        }
+        cancel();
     }
 }

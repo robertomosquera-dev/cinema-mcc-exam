@@ -8,4 +8,4 @@ Booking reintenta únicamente fallos transitorios de `reserve`, con tres intento
 
 Cada transición local se persiste en su propia transacción. Si falla la reserva o confirmación, la Saga intenta liberar el asiento y guardar CANCELLED. Si la base de datos está indisponible durante la compensación, no se puede garantizar la eliminación del estado PENDING; el error se registra y se requiere intervención operativa. Tampoco existe una cola de recuperación duradera para compensaciones remotas fallidas.
 
-Las rutas GET, listado y cancelación solicitada por el cliente permanecen fuera de este flujo y sus servicios siguen sin implementación. La URL `Location` se genera, pero su GET todavía no está disponible.
+`GET /api/v1/bookings/{id}` consulta únicamente el snapshot local y devuelve 404 si no existe. `GET /api/v1/bookings` lista las reservas locales. `PATCH /api/v1/bookings/{id}/cancel` acepta reservas confirmadas: guarda CANCELLED antes de solicitar `release` a Movie. Si la liberación falla, propaga el error al cliente; el cambio local permanece CANCELLED y no se revierte. Una reserva inexistente devuelve 404 y una reserva pendiente o ya cancelada devuelve 422.
