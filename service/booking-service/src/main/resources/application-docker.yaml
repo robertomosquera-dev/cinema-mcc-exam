@@ -3,3 +3,6 @@ spring:
     url: ${BOOKING_DB_URL}
     username: ${BOOKING_DB_USERNAME}
     password: ${BOOKING_DB_PASSWORD}
+
+movie-service:
+  base-url: ${MOVIE_SERVICE_URL}

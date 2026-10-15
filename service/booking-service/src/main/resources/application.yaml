@@ -13,3 +13,6 @@ spring:
 
 server:
   port: ${BOOKING_PORT:51200}
+
+movie-service:
+  base-url: ${MOVIE_SERVICE_URL:http://localhost:51100/api/v1}
