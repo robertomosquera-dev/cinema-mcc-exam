@@ -19,8 +19,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login",
-                                "/api/v1/auth/login/oauth2/github", "/oauth2/jwks",
+                        .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login", "/oauth2/jwks",
                                 "/actuator/health", "/error").permitAll()
                         .anyRequest().denyAll())
                 .build();

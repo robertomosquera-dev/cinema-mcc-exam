@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: auth-service
+  config:
+    import: "optional:configserver:http://localhost:50000"
+
+auth:
+  jwt:
+    issuer: http://localhost:50003
+    access-token-ttl: 3600

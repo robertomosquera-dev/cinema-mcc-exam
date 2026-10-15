@@ -9,7 +9,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -65,13 +64,4 @@ public class JWTService {
         return TokenResponse.bearer(token, accessTokenTtl);
     }
 
-    // Conserva el perfil GitHub existente cuando se activa explícitamente.
-    public TokenResponse generateTokensFromGitHub(OAuth2User oauth2User) {
-        String username = oauth2User.getAttribute("login");
-        if (username == null || username.isBlank()) {
-            username = "github_user_" + oauth2User.getAttribute("id");
-        }
-        return generateToken(new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
-                username, null));
-    }
 }

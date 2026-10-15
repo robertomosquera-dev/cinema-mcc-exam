@@ -15,12 +15,7 @@
     <artifactId>auth-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>auth-service</name>
-    <description>
-        Servicio de autenticación y autorización del e-commerce.
-        Módulo 12: JWT RS256 propio + GitHub OAuth2 + Keycloak.
-        Emite tokens JWT firmados con clave RSA privada.
-        Expone JWKS público para que los Resource Servers validen tokens localmente.
-    </description>
+    <description>Autenticación básica del sistema de cine con JWT RS256 y JWKS público.</description>
 
     <properties>
         <java.version>25</java.version>
@@ -66,26 +61,6 @@
             <artifactId>spring-security-oauth2-jose</artifactId>
         </dependency>
 
-        <!--
-            OAuth2 Resource Server: soporta oauth2ResourceServer(jwt) en HttpSecurity.
-            Necesario para que /oauth2/jwks sea reconocido por Spring Security.
-            Versión gestionada por el BOM de Spring Boot 4.
-        -->
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-oauth2-resource-server</artifactId>
-        </dependency>
-
-        <!--
-            OAuth2 Client: OAuth2 login con GitHub (perfil 'github').
-            Proporciona OAuth2AuthorizationCodeGrantFilter + OAuth2LoginAuthenticationFilter.
-            Versión gestionada por el BOM de Spring Boot 4.
-        -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-oauth2-client</artifactId>
-        </dependency>
-
         <!-- Validation: @NotBlank en DTOs -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -98,14 +73,10 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!--
-            Eureka Client: auth-service se registra en Eureka.
-            Permite que los servicios lo descubran por nombre (auth-service).
-            NO depende de Config Server para evitar circular dependency en arranque.
-        -->
+        <!-- Configuración centralizada, igual que Movie y Booking. -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+            <artifactId>spring-cloud-starter-config</artifactId>
         </dependency>
 
         <dependency>
