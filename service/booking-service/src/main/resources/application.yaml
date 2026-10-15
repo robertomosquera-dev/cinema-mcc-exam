@@ -10,13 +10,29 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+  cloud:
+    loadbalancer:
+      retry:
+        enabled: false
+    discovery:
+      client:
+        simple:
+          instances:
+            movie-service:
+              - uri: ${MOVIE_SERVICE_INSTANCE_URL:http://localhost:51100}
 
 server:
   port: ${BOOKING_PORT:51200}
 
 movie-service:
-  base-url: ${MOVIE_SERVICE_URL:http://localhost:51100/api/v1}
-  reserve:
-    max-attempts: 3
-    retry-delay-ms: 500
+  base-url: http://movie-service/api/v1
+
+resilience4j:
+  retry:
+    instances:
+      movieReserve:
+        max-attempts: 3
+        wait-duration: 500ms
+        retry-exceptions:
+          - com.mitocode.application.error.MovieServiceException
 
