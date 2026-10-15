@@ -4,6 +4,7 @@ import com.mitocode.domain.model.Booking;
 
 import java.util.Optional;
 import java.util.List;
+import java.time.Instant;
 import java.util.UUID;
 
 public interface BookingRepositoryPort {
@@ -13,4 +14,6 @@ public interface BookingRepositoryPort {
     Optional<Booking> findById(UUID id);
 
     List<Booking> findAll();
+
+    List<Booking> findPendingCreatedBefore(Instant cutoff);
 }

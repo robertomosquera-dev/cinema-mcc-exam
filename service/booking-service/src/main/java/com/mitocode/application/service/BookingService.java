@@ -19,6 +19,7 @@ import com.mitocode.application.saga.step.ReserveSeatStep;
 import com.mitocode.application.saga.step.ConfirmBookingStep;
 import com.mitocode.domain.model.Booking;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BookingService implements CreateBookingUseCase, GetBookingByIdUseCase,
         GetBookingsUseCase, CancelBookingUseCase {
     private final BookingRepositoryPort bookingRepository;
@@ -60,7 +62,11 @@ public class BookingService implements CreateBookingUseCase, GetBookingByIdUseCa
         var booking = findBooking(id);
         booking.cancelByCustomer();
         var cancelled = bookingRepository.save(booking);
-        movieClient.releaseSeat(cancelled.getScreeningId(), cancelled.getId());
+        try {
+            movieClient.releaseSeat(cancelled.getScreeningId(), cancelled.getId());
+        } catch (RuntimeException e) {
+            log.error("No se pudo liberar el asiento de la reserva cancelada {}", cancelled.getId(), e);
+        }
         return mapper.toResponse(cancelled);
     }
 

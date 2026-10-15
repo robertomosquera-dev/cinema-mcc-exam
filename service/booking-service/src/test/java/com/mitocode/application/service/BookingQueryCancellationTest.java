@@ -81,12 +81,13 @@ class BookingQueryCancellationTest {
     }
 
     @Test
-    void failedReleasePropagatesErrorAfterLocalCancellation() {
+    void failedReleaseKeepsSuccessfulLocalCancellation() {
         when(repository.findById(id)).thenReturn(Optional.of(booking(BookingStatus.CONFIRMED)));
         var failure = new IllegalStateException("Movie no disponible");
         when(movie.releaseSeat(screeningId, id)).thenThrow(failure);
-        assertSame(failure, assertThrows(IllegalStateException.class, () -> service.cancelBooking(id)));
+        assertEquals(BookingStatus.CANCELLED, service.cancelBooking(id).status());
         verify(repository).save(argThat(b -> b.getStatus() == BookingStatus.CANCELLED));
+        verify(movie).releaseSeat(screeningId, id);
     }
 
     @Test

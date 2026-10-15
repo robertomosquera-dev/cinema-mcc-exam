@@ -2,13 +2,15 @@ package com.mitocode.infrastructure.persistence.adapter;
 
 import com.mitocode.application.port.out.BookingRepositoryPort;
 import com.mitocode.domain.model.Booking;
+import com.mitocode.domain.model.BookingStatus;
 import com.mitocode.infrastructure.persistence.mapper.BookingPersistenceMapper;
 import com.mitocode.infrastructure.persistence.repository.SpringDataBookingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -31,5 +33,11 @@ public class JpaBookingRepositoryAdapter implements BookingRepositoryPort {
     @Override
     public List<Booking> findAll() {
         return repository.findAll().stream().map(mapper::toDomain).toList();
+    }
+
+    @Override
+    public List<Booking> findPendingCreatedBefore(Instant cutoff) {
+        return repository.findByStatusAndCreatedAtBeforeOrderByCreatedAtAsc(BookingStatus.PENDING, cutoff)
+                .stream().map(mapper::toDomain).toList();
     }
 }
