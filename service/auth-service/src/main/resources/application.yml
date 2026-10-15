@@ -1,0 +1,29 @@
+server:
+  port: 50003
+  shutdown: graceful
+
+spring:
+  application:
+    name: auth-service
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:50001/eureka/}
+    registry-fetch-interval-seconds: 5
+  instance:
+    prefer-ip-address: true
+
+auth:
+  jwt:
+    issuer: ${AUTH_JWT_ISSUER:http://localhost:50003}
+    access-token-ttl: ${AUTH_JWT_ACCESS_TTL_SECONDS:3600}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: always
