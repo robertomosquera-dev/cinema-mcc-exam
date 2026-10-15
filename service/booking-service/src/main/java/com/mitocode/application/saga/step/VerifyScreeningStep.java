@@ -31,6 +31,5 @@ public class VerifyScreeningStep implements IStep {
 
     @Override
     public void compensate(SagaContext context) {
-        // La consulta no modifica estado y no requiere compensación.
     }
 }

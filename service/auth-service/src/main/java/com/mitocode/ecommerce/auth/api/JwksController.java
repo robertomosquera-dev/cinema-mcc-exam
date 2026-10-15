@@ -8,17 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * Endpoint JWKS: expone la clave pública RSA en formato JWK Set.
- * <p>
- * GET /oauth2/jwks
- * Respuesta: { "keys": [{ "kty": "RSA", "e": "AQAB", "n": "...", "kid": "..." }] }
- * <p>
- * Los Resource Servers (api-gateway, order-orchestrator, order-service) llaman
- * a este endpoint al arrancar para descargar la clave pública y validar JWTs
- * localmente sin hacer una llamada HTTP por cada request.
- *
- */
 @RestController
 public class JwksController {
 
@@ -30,9 +19,6 @@ public class JwksController {
 
     @GetMapping(value = "/oauth2/jwks", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> jwks() {
-        // toPublicJWKSet() → solo expone claves públicas (nunca la privada)
-        // toJSONObject()   → { "keys": [{ "kty": "RSA", "e": "AQAB", "n": "...", "kid": "..." }] }
-        // Este es el formato estándar JWK Set que espera spring-security oauth2ResourceServer
         return jwkSet.toPublicJWKSet().toJSONObject();
     }
 }

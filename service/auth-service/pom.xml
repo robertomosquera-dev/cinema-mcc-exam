@@ -36,44 +36,31 @@
 
     <dependencies>
 
-        <!-- Spring MVC: expone los endpoints REST de autenticación -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Spring Security: UserDetailsService, PasswordEncoder, SecurityFilterChain -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-        <!--
-            OAuth2 Jose: JwtEncoder + JwtDecoder + JWKSource.
-            Proporciona:
-              - com.nimbusds.jose.jwk.RSAKey → construcción de claves RSA JWK
-              - NimbusJwtEncoder → firma JWT con clave RSA privada (RS256)
-              - NimbusJwtDecoder → verifica JWT con clave RSA pública
-            Versión gestionada por el BOM de Spring Boot 4.
-        -->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-oauth2-jose</artifactId>
         </dependency>
 
-        <!-- Validation: @NotBlank en DTOs -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- Actuator: /actuator/health para Docker healthcheck -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!-- Configuración centralizada, igual que Movie y Booking. -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-config</artifactId>

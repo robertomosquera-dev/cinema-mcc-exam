@@ -18,25 +18,11 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.UUID;
 
-/**
- * Configuración de claves RSA y beans JWT.
- * <p>
- * Genera un par de claves RSA 2048-bit en memoria al arrancar.
- * En producción las claves deberían persistirse (KeyStore, HSM o secrets manager)
- * para que los tokens sigan siendo válidos después de un reinicio.
- * <p>
- * Beans expuestos:
- * - KeyPair      → par RSA (privada para firmar, pública para verificar)
- * - JWKSource    → fuente JWK para NimbusJwtEncoder
- * - JwtEncoder   → firma JWTs con clave RSA privada (RS256)
- * - JwtDecoder   → verifica JWTs con clave RSA pública
- * - RSAKey (public) → expuesto como @Bean para el endpoint JWKS
- */
 @Configuration
 public class JwkConfig {
 
-    private static final String ALGORITHM = "RSA"; // Algoritmo de firma recomendado para JWTs con RSA
-    private static final int KEY_SIZE = 2048; // Tamaño de la clave RSA en bits (2048 es seguro para la mayoría de los casos)
+    private static final String ALGORITHM = "RSA";
+    private static final int KEY_SIZE = 2048;
 
     @Bean
     public KeyPair rsaKeyPair() {
@@ -49,12 +35,6 @@ public class JwkConfig {
         }
     }
 
-    /**
-     * RSAKey de Nimbus con clave pública y privada.
-     * Incluye un keyId (kid) aleatorio para identificar la clave en el JWKS.
-     * El kid permite a los Resource Servers seleccionar la clave correcta cuando
-     * hay múltiples claves en rotación.
-     */
     @Bean
     public RSAKey rsaKey(KeyPair rsaKeyPair) {
         return new RSAKey.Builder((RSAPublicKey) rsaKeyPair.getPublic())
@@ -63,35 +43,21 @@ public class JwkConfig {
                 .build();
     }
 
-    /**
-     * JWKSource: repositorio de claves JWK usado por NimbusJwtEncoder.
-     */
     @Bean
     public JWKSet jwkSet(RSAKey rsaKey) {
         return new JWKSet(rsaKey);
     }
 
-    /**
-     * ImmutableJWKSet → conjunto de claves fijo (sin rotación dinámica).
-     */
     @Bean
     public JWKSource<SecurityContext> jwkSource(JWKSet jwkSet) {
         return new ImmutableJWKSet<>(jwkSet);
     }
 
-    /**
-     * JwtEncoder: firma JWTs con la clave RSA privada usando RS256.
-     * Usado en JwtTokenService para generar accessToken y refreshToken.
-     */
     @Bean
     public JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
         return new NimbusJwtEncoder(jwkSource);
     }
 
-    /**
-     * JwtDecoder: verifica la firma de JWTs con la clave RSA pública.
-     * Usado en JwtTokenService para validar refreshTokens.
-     */
     @Bean
     public JwtDecoder jwtDecoder(RSAKey rsaKey) {
         try {

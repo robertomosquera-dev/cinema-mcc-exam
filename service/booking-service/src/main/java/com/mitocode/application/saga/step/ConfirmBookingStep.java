@@ -19,6 +19,5 @@ public class ConfirmBookingStep implements IStep {
 
     @Override
     public void compensate(SagaContext context) {
-        // La cancelación local la realiza CreatePendingBookingStep en orden inverso.
     }
 }
