@@ -3,6 +3,7 @@ package com.mitocode.infrastructure.client;
 import com.mitocode.application.dto.ReleaseSeatResponse;
 import com.mitocode.application.dto.ReserveSeatResponse;
 import com.mitocode.application.dto.ScreeningAvailabilityResponse;
+import com.mitocode.application.port.out.MovieClientPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -11,10 +12,11 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class ClientMovie {
+public class ClientMovie implements MovieClientPort {
 
     private final WebClient movieServiceWebClient;
 
+    @Override
     public ScreeningAvailabilityResponse getScreening(UUID screeningId) {
         return movieServiceWebClient.get()
                 .uri("/screenings/{id}", screeningId)
@@ -24,6 +26,7 @@ public class ClientMovie {
                 .orElseThrow(() -> new IllegalStateException("Movie Service no devolvió la función"));
     }
 
+    @Override
     public ReserveSeatResponse reserveSeat(UUID screeningId) {
         return movieServiceWebClient.patch()
                 .uri("/screenings/{id}/reserve", screeningId)
@@ -33,6 +36,7 @@ public class ClientMovie {
                 .orElseThrow(() -> new IllegalStateException("Movie Service no confirmó la reserva del asiento"));
     }
 
+    @Override
     public ReleaseSeatResponse releaseSeat(UUID screeningId) {
         return movieServiceWebClient.patch()
                 .uri("/screenings/{id}/release", screeningId)
