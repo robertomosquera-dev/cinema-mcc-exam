@@ -23,7 +23,7 @@ El archivo `.env` de la raíz contiene `POSTGRES_USER` y `POSTGRES_PASSWORD` con
 
 Solo Gateway publica un puerto al equipo. Los contenedores se comunican usando nombres de servicio y puertos internos. Booking conserva su configuración de instancia estática y balanceo para llamar a Movie. No se usan Eureka, Kafka ni otros componentes de descubrimiento.
 
-Movie y Booking usan bases separadas. El script `docker/init-db/create-databases.sql` las crea **solo al inicializar un volumen PostgreSQL vacío**; Flyway crea y migra las tablas. Auth guarda los usuarios y su par de claves RSA en memoria: al reiniciarlo se pierden los usuarios registrados y los JWT anteriores dejan de ser válidos. La clave privada permanece en Auth; Movie y Booking obtienen la clave pública mediante su JWKS.
+Movie y Booking usan bases separadas. El script `docker/init-db/create-databases.sql` las crea **solo al inicializar un volumen PostgreSQL vacío**; Flyway crea y migra las tablas. Auth guarda los usuarios y su par de claves RSA en memoria: al reiniciarlo se pierden los usuarios registrados y los JWT anteriores dejan de ser válidos. El usuario académico `profesor` se vuelve a crear al iniciar Auth con el perfil `docker` o el perfil predeterminado. La clave privada permanece en Auth; Movie y Booking obtienen la clave pública mediante su JWKS.
 
 ## Saga de reservas
 
@@ -55,4 +55,4 @@ docker compose start
 - Registro: `POST http://localhost:8080/api/v1/auth/register`
 - Login: `POST http://localhost:8080/api/v1/auth/login`
 
-Tras iniciar sesión, copia el valor `access_token` en **Authorize** de Swagger para llamar a las rutas protegidas. Registro, login, JWKS y documentación son públicos.
+Para probar el login sin registrar un usuario, usa `profesor` / `Profesor123!`. Estas credenciales son solo de ejemplo académico. Tras iniciar sesión, copia el valor `access_token` en **Authorize** de Swagger para llamar a las rutas protegidas. Registro, login, JWKS y documentación son públicos.

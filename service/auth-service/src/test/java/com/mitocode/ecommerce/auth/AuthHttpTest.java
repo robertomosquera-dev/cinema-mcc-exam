@@ -35,6 +35,17 @@ class AuthHttpTest {
     private final ObjectMapper json = new ObjectMapper();
 
     @Test
+    void demoUserCanLoginWithoutRegistration() throws Exception {
+        assertTrue(users.userExists("profesor"));
+        assertTrue(encoder.matches("Profesor123!", users.loadUserByUsername("profesor").getPassword()));
+
+        var login = post("/api/v1/auth/login",
+                "{\"username\":\"profesor\",\"password\":\"Profesor123!\"}");
+        assertEquals(200, login.statusCode());
+        assertEquals("Bearer", json.readTree(login.body()).get("token_type").asText());
+    }
+
+    @Test
     void registrationLoginAndPublicKeyWorkOverHttp() throws Exception {
         String username = "user_" + UUID.randomUUID().toString().replace("-", "");
         String password = "pruebaSegura123";
