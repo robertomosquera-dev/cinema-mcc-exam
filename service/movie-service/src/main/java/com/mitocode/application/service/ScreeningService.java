@@ -14,6 +14,7 @@ import com.mitocode.application.port.in.ReleaseSeatUseCase;
 import com.mitocode.application.port.in.ReserveSeatUseCase;
 import com.mitocode.application.port.out.MovieRepositoryPort;
 import com.mitocode.application.port.out.ScreeningRepositoryPort;
+import com.mitocode.application.port.out.SeatReservationPort;
 import com.mitocode.domain.model.Screening;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class ScreeningService implements CreateScreeningUseCase, GetScreeningsUs
 
     private final MovieRepositoryPort movieRepositoryPort;
     private final ScreeningRepositoryPort screeningRepositoryPort;
+    private final SeatReservationPort seatReservationPort;
     private final ScreeningDtoMapper screeningDtoMapper;
 
     @Override
@@ -69,6 +71,48 @@ public class ScreeningService implements CreateScreeningUseCase, GetScreeningsUs
         screening.reserveSeat();
         Screening savedScreening = screeningRepositoryPort.save(screening);
         return new ReserveSeatResponse(savedScreening.getId(), savedScreening.getAvailableSeats());
+    }
+
+    @Override
+    @Transactional
+    public ReserveSeatResponse reserveSeat(UUID screeningId, UUID bookingId) {
+        Screening screening = screeningRepositoryPort.findByIdForUpdate(screeningId)
+                .orElseThrow(() -> new ResourceNotFoundException("Función no encontrada: " + screeningId));
+        var existing = seatReservationPort.findByBookingId(bookingId);
+        if (existing.isPresent()) {
+            var reservation = existing.get();
+            if (!reservation.screeningId().equals(screeningId) || reservation.released()) {
+                throw new com.mitocode.domain.model.exception.NoSeatsAvailableException();
+            }
+            return new ReserveSeatResponse(screeningId, screening.getAvailableSeats());
+        }
+        screening.reserveSeat();
+        Screening saved = screeningRepositoryPort.save(screening);
+        seatReservationPort.save(bookingId, screeningId, false);
+        return new ReserveSeatResponse(screeningId, saved.getAvailableSeats());
+    }
+
+    @Override
+    @Transactional
+    public ReleaseSeatResponse releaseSeat(UUID screeningId, UUID bookingId) {
+        Screening screening = screeningRepositoryPort.findByIdForUpdate(screeningId)
+                .orElseThrow(() -> new ResourceNotFoundException("Función no encontrada: " + screeningId));
+        var existing = seatReservationPort.findByBookingId(bookingId);
+        if (existing.isPresent()) {
+            var reservation = existing.get();
+            if (!reservation.screeningId().equals(screeningId)) {
+                throw new IllegalArgumentException("bookingId asociado con otra función");
+            }
+            if (!reservation.released()) {
+                screening.releaseSeat();
+                screening = screeningRepositoryPort.save(screening);
+                seatReservationPort.save(bookingId, screeningId, true);
+            }
+        } else {
+            // Tombstone: impide un descuento tardío tras una respuesta perdida.
+            seatReservationPort.save(bookingId, screeningId, true);
+        }
+        return new ReleaseSeatResponse(screeningId, screening.getAvailableSeats());
     }
 
     @Override

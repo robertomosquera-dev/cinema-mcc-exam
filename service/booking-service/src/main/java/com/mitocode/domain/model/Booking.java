@@ -30,5 +30,35 @@ public class Booking {
 
     private Instant updatedAt;
 
-    // TODO: Incorporar aquí las reglas de confirmación y cancelación de la reserva.
+    public static Booking pending(UUID screeningId, String movieTitle, UUID customerId, BigDecimal totalAmount) {
+        if (screeningId == null || customerId == null || movieTitle == null || movieTitle.isBlank()
+                || totalAmount == null || totalAmount.signum() <= 0) {
+            throw new IllegalArgumentException("Los datos de la reserva son inválidos");
+        }
+        return Booking.builder()
+                .id(UUID.randomUUID())
+                .screeningId(screeningId)
+                .movieTitle(movieTitle)
+                .customerId(customerId)
+                .totalAmount(totalAmount)
+                .status(BookingStatus.PENDING)
+                .build();
+    }
+
+    public void confirm() {
+        if (status != BookingStatus.PENDING) {
+            throw new IllegalStateException("Solo se puede confirmar una reserva pendiente");
+        }
+        status = BookingStatus.CONFIRMED;
+    }
+
+    public void cancel() {
+        if (status == BookingStatus.CANCELLED) {
+            return;
+        }
+        if (status != BookingStatus.PENDING && status != BookingStatus.CONFIRMED) {
+            throw new IllegalStateException("No se puede cancelar una reserva sin estado válido");
+        }
+        status = BookingStatus.CANCELLED;
+    }
 }

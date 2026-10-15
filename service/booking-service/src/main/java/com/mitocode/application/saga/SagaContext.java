@@ -17,7 +17,9 @@ public class SagaContext {
     private final CreateBookingRequest request;
     private ScreeningAvailabilityResponse screeningAvailabilityResponse;
     private Booking booking;
+    private UUID pendingCandidateId;
     private UUID bookingId = null;
+    private boolean reserveAttempted = false;
     private boolean seatReserved = false;
     private BookingResponse bookingResponse;
 }

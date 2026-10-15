@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -86,8 +87,10 @@ public class ScreeningController {
             @ApiResponse(responseCode = "404", description = "Función inexistente"),
             @ApiResponse(responseCode = "422", description = "Asientos no disponibles")
     })
-    public ResponseEntity<ReserveSeatResponse> reserve(@PathVariable UUID id) {
-        return ResponseEntity.ok(reserveSeatUseCase.reserveSeat(id));
+    public ResponseEntity<ReserveSeatResponse> reserve(@PathVariable UUID id,
+            @RequestHeader(name = "X-Booking-Id", required = false) UUID bookingId) {
+        return ResponseEntity.ok(bookingId == null ? reserveSeatUseCase.reserveSeat(id)
+                : reserveSeatUseCase.reserveSeat(id, bookingId));
     }
 
     @PatchMapping("/{id}/release")
@@ -98,7 +101,9 @@ public class ScreeningController {
             @ApiResponse(responseCode = "404", description = "Función inexistente"),
             @ApiResponse(responseCode = "422", description = "Regla de negocio incumplida")
     })
-    public ResponseEntity<ReleaseSeatResponse> release(@PathVariable UUID id) {
-        return ResponseEntity.ok(releaseSeatUseCase.releaseSeat(id));
+    public ResponseEntity<ReleaseSeatResponse> release(@PathVariable UUID id,
+            @RequestHeader(name = "X-Booking-Id", required = false) UUID bookingId) {
+        return ResponseEntity.ok(bookingId == null ? releaseSeatUseCase.releaseSeat(id)
+                : releaseSeatUseCase.releaseSeat(id, bookingId));
     }
 }

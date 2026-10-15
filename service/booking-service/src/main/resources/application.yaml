@@ -16,3 +16,7 @@ server:
 
 movie-service:
   base-url: ${MOVIE_SERVICE_URL:http://localhost:51100/api/v1}
+  reserve:
+    max-attempts: 3
+    retry-delay-ms: 500
+

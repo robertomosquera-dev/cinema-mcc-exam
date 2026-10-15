@@ -10,7 +10,7 @@ public interface MovieClientPort {
 
     ScreeningAvailabilityResponse getScreening(UUID screeningId);
 
-    ReserveSeatResponse reserveSeat(UUID screeningId);
+    ReserveSeatResponse reserveSeat(UUID screeningId, UUID bookingId);
 
-    ReleaseSeatResponse releaseSeat(UUID screeningId);
+    ReleaseSeatResponse releaseSeat(UUID screeningId, UUID bookingId);
 }

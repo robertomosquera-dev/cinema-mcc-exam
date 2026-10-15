@@ -7,10 +7,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 public class MovieWebClientConfig {
-
     @Bean
-    public WebClient movieServiceWebClient(WebClient.Builder builder,
-                                           @Value("${movie-service.base-url}") String baseUrl) {
-        return builder.baseUrl(baseUrl).build();
+    public WebClient movieServiceWebClient(@Value("${movie-service.base-url}") String baseUrl) {
+        return WebClient.builder().baseUrl(baseUrl).build();
     }
 }

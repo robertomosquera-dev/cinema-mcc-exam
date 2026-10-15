@@ -15,26 +15,25 @@ public class SagaStepsExecutor implements ISagaStepsService<IStep, BookingRespon
     @Override
     public BookingResponse runSteps(List<IStep> steps, SagaContext context,
                                     Function<SagaContext, BookingResponse> responseFactory) {
-        List<IStep> executedSteps = new ArrayList<>();
-        for (IStep step : steps) {
-            try {
+        List<IStep> startedSteps = new ArrayList<>();
+        try {
+            for (IStep step : steps) {
                 log.info("Ejecutando paso: {}", step.getClass().getSimpleName());
+                startedSteps.add(step);
                 step.execute(context);
-                executedSteps.add(step);
-            } catch (Exception e) {
-                log.error("Error en paso {}: {}", step.getClass().getSimpleName(), e.getMessage(), e);
-                compensate(executedSteps, context);
-                throw new IllegalStateException("Saga fallida", e);
             }
+            return responseFactory.apply(context);
+        } catch (RuntimeException e) {
+            log.error("Saga fallida: {}", e.getMessage(), e);
+            compensate(startedSteps, context);
+            throw e;
         }
-
-        return responseFactory.apply(context);
     }
 
-    private void compensate(List<IStep> executedSteps, SagaContext context) {
+    private void compensate(List<IStep> startedSteps, SagaContext context) {
         log.warn("Iniciando compensación...");
-        for (int i = executedSteps.size() - 1; i >= 0; i--) {
-            IStep step = executedSteps.get(i);
+        for (int i = startedSteps.size() - 1; i >= 0; i--) {
+            IStep step = startedSteps.get(i);
             try {
                 log.info("Compensando paso: {}", step.getClass().getSimpleName());
                 step.compensate(context);

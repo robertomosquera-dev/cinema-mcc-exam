@@ -2,20 +2,23 @@ package com.mitocode.application.saga.step;
 
 import com.mitocode.application.saga.IStep;
 import com.mitocode.application.saga.SagaContext;
+import com.mitocode.application.port.out.BookingRepositoryPort;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class ConfirmBookingStep implements IStep {
+    private final BookingRepositoryPort repository;
 
     @Override
     public void execute(SagaContext context) {
-        // TODO: Confirmar mediante el dominio y guardar el booking CONFIRMED.
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        context.getBooking().confirm();
+        context.setBooking(repository.save(context.getBooking()));
     }
 
     @Override
     public void compensate(SagaContext context) {
-        // TODO: Definir la compensación si se agregan pasos posteriores a la confirmación.
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        // La cancelación local la realiza CreatePendingBookingStep en orden inverso.
     }
 }
