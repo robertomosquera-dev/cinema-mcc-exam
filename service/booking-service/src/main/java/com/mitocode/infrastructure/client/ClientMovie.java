@@ -1,0 +1,45 @@
+package com.mitocode.infrastructure.client;
+
+import com.mitocode.application.dto.ReleaseSeatResponse;
+import com.mitocode.application.dto.ReserveSeatResponse;
+import com.mitocode.application.dto.ScreeningAvailabilityResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.UUID;
+
+@Component
+@RequiredArgsConstructor
+public class ClientMovie {
+
+    private final WebClient movieServiceWebClient;
+
+    public ScreeningAvailabilityResponse getScreening(UUID screeningId) {
+        return movieServiceWebClient.get()
+                .uri("/screenings/{id}", screeningId)
+                .retrieve()
+                .bodyToMono(ScreeningAvailabilityResponse.class)
+                .blockOptional()
+                .orElseThrow(() -> new IllegalStateException("Movie Service no devolvió la función"));
+    }
+
+    public ReserveSeatResponse reserveSeat(UUID screeningId) {
+        return movieServiceWebClient.patch()
+                .uri("/screenings/{id}/reserve", screeningId)
+                .retrieve()
+                .bodyToMono(ReserveSeatResponse.class)
+                .blockOptional()
+                .orElseThrow(() -> new IllegalStateException("Movie Service no confirmó la reserva del asiento"));
+    }
+
+    public ReleaseSeatResponse releaseSeat(UUID screeningId) {
+        return movieServiceWebClient.patch()
+                .uri("/screenings/{id}/release", screeningId)
+                .retrieve()
+                .bodyToMono(ReleaseSeatResponse.class)
+                .blockOptional()
+                .orElseThrow(() -> new IllegalStateException("Movie Service no confirmó la liberación del asiento"));
+    }
+
+}
