@@ -20,6 +20,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login", "/oauth2/jwks",
+                                "/v3/api-docs", "/v3/api-docs/**", "/swagger-ui/**",
                                 "/actuator/health", "/error").permitAll()
                         .anyRequest().denyAll())
                 .build();

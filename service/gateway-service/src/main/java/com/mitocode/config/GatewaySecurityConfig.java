@@ -15,7 +15,8 @@ public class GatewaySecurityConfig {
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/api/v1/auth/**", "/oauth2/jwks", "/swagger", "/swagger/**",
                                 "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
-                                "/movie-service/v3/api-docs/**", "/booking-service/v3/api-docs/**",
+                                "/auth-service/v3/api-docs/**", "/movie-service/v3/api-docs/**",
+                                "/booking-service/v3/api-docs/**",
                                 "/webjars/**", "/error").permitAll()
                         .anyExchange().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))

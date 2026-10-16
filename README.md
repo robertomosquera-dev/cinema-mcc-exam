@@ -50,6 +50,7 @@ docker compose start
 ## Acceso
 
 - Swagger: <http://localhost:8080/swagger>
+- OpenAPI Auth: <http://localhost:8080/auth-service/v3/api-docs>
 - OpenAPI Movie: <http://localhost:8080/movie-service/v3/api-docs>
 - OpenAPI Booking: <http://localhost:8080/booking-service/v3/api-docs>
 - Registro: `POST http://localhost:8080/api/v1/auth/register`
