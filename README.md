@@ -56,4 +56,4 @@ docker compose start
 - Registro: `POST http://localhost:8080/api/v1/auth/register`
 - Login: `POST http://localhost:8080/api/v1/auth/login`
 
-Para probar el login sin registrar un usuario, usa `profesor` / `Profesor123!`. Estas credenciales son solo de ejemplo académico. Tras iniciar sesión, copia el valor `access_token` en **Authorize** de Swagger para llamar a las rutas protegidas. Registro, login, JWKS y documentación son públicos.
+Para probar el login sin registrar un usuario, usa `profesor` / `Profesor123!`. Estas credenciales son solo de ejemplo académico. Tras iniciar sesión en el módulo Auth de Swagger, copia el valor `access_token` en **Authorize**. Swagger conserva ese token al cambiar entre Auth, Movie y Booking; las rutas protegidas lo usan automáticamente. Registro, login, JWKS y documentación son públicos.
