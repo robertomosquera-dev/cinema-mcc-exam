@@ -14,8 +14,10 @@ import java.util.UUID;
 @Getter @Setter @NoArgsConstructor
 public class SeatReservationJpaEntity {
     @Id private UUID bookingId;
-    @Column(nullable = false) private UUID screeningId;
-    @Column(nullable = false) private boolean released;
+    @Column(nullable = false)
+    private UUID screeningId;
+    @Column(nullable = false)
+    private boolean released;
     public SeatReservationJpaEntity(UUID bookingId, UUID screeningId, boolean released) {
         this.bookingId = bookingId;
         this.screeningId = screeningId;

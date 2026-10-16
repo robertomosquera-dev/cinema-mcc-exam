@@ -16,6 +16,7 @@ import com.mitocode.application.port.out.MovieRepositoryPort;
 import com.mitocode.application.port.out.ScreeningRepositoryPort;
 import com.mitocode.application.port.out.SeatReservationPort;
 import com.mitocode.domain.model.Screening;
+import com.mitocode.domain.model.exception.NoSeatsAvailableException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,7 +83,7 @@ public class ScreeningService implements CreateScreeningUseCase, GetScreeningsUs
         if (existing.isPresent()) {
             var reservation = existing.get();
             if (!reservation.screeningId().equals(screeningId) || reservation.released()) {
-                throw new com.mitocode.domain.model.exception.NoSeatsAvailableException();
+                throw new NoSeatsAvailableException();
             }
             return new ReserveSeatResponse(screeningId, screening.getAvailableSeats());
         }
@@ -109,7 +110,6 @@ public class ScreeningService implements CreateScreeningUseCase, GetScreeningsUs
                 seatReservationPort.save(bookingId, screeningId, true);
             }
         } else {
-            // Tombstone: impide un descuento tardío tras una respuesta perdida.
             seatReservationPort.save(bookingId, screeningId, true);
         }
         return new ReleaseSeatResponse(screeningId, screening.getAvailableSeats());
