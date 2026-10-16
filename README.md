@@ -55,6 +55,8 @@ docker compose start
 - OpenAPI Auth: <http://localhost:8080/auth-service/v3/api-docs>
 - OpenAPI Movie: <http://localhost:8080/movie-service/v3/api-docs>
 - OpenAPI Booking: <http://localhost:8080/booking-service/v3/api-docs>
+- Salud de Movie: <http://localhost:8080/movie-service/actuator/health>
+- Salud de Booking: <http://localhost:8080/booking-service/actuator/health>
 - Registro: `POST http://localhost:8080/api/v1/auth/register`
 - Login: `POST http://localhost:8080/api/v1/auth/login`
 

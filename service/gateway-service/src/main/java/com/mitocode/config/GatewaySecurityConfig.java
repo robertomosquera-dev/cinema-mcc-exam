@@ -17,6 +17,7 @@ public class GatewaySecurityConfig {
                                 "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
                                 "/auth-service/v3/api-docs/**", "/movie-service/v3/api-docs/**",
                                 "/booking-service/v3/api-docs/**",
+                                "/movie-service/actuator/health", "/booking-service/actuator/health",
                                 "/webjars/**", "/error").permitAll()
                         .anyExchange().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
