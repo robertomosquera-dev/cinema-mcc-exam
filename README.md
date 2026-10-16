@@ -8,6 +8,8 @@ Sistema de películas, funciones y reservas dividido en servicios Java 25. Se ej
 - Acceso a Internet para que Config Server descargue sus archivos desde GitHub al arrancar.
 - Puerto `8080` disponible en el equipo.
 
+Config Server obtiene los archivos del [repositorio de configuración](https://github.com/robertomosquera-dev/exam-mitocode-config-repo).
+
 El archivo `.env` de la raíz contiene `POSTGRES_USER` y `POSTGRES_PASSWORD` con valores académicos de ejemplo. Son las únicas variables que hay que configurar para el arranque local.
 
 ## Contenedores y funciones
